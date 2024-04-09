@@ -33,6 +33,7 @@ The location is currently hardcoded to be SF, in order to have the application b
 
 While `function.ts` file is not being used, it is a cleaner way to separate out the tool code and serves as an example of how you can extend this application.
  
+## Documentation and Reading
 Currently, there isn't much documentation for the feature on Typescript. 
 You can check out some writing about Tool here:
  - an example [tool.ts](https://github.com/anthropics/anthropic-sdk-typescript/blob/5bcaddbd396fa81e9b65bf2ce3b2917affae5c0a/examples/tools.ts)

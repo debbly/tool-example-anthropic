@@ -11,6 +11,7 @@ const port = 3000;
 // Parse incoming JSON data
 app.use(bodyParser.json());
 
+// Set up using Tool
 const tools: Anthropic.Beta.Tools.Tool[] = [
   {
     name: 'get_weather',
@@ -22,11 +23,12 @@ const tools: Anthropic.Beta.Tools.Tool[] = [
   }
 ];
 
+// Function that calls the OpenWeather API endpoint
 async function get_weather() {
   try {
-    //lat, long set for Oakland, CA
+    //lat, long set for San Francisco, CA
     const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=37.8&lon=-122.2&appid=${process.env.OPENWEATHER_API_KEY}&units=imperial`
+      `https://api.openweathermap.org/data/2.5/weather?lat=37.8&lon=-122.41&appid=${process.env.OPENWEATHER_API_KEY}&units=imperial`
     );
     
     if (!response.ok) {
@@ -42,6 +44,7 @@ async function get_weather() {
   }
 }
 
+// Switch function (necessary when you have many different types of tools you want to use)
 const runFunction = async (name: string, args: any) => {
   switch (name) {
     case 'get_weather':
@@ -51,6 +54,7 @@ const runFunction = async (name: string, args: any) => {
   }
 }
 
+// Initialize Anthropic client
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 app.post('/chat', async (req, res) => {
@@ -71,17 +75,12 @@ app.post('/chat', async (req, res) => {
       const tool = message.content.find((content): content is Anthropic.Beta.Tools.ToolUseBlock => content.type === 'tool_use');
 
       if (tool) {
-        console.log(tool);
         try {
-          // Call runFunction directly with await
           const toolResult = await runFunction(tool.name, null);
-          console.log('tool res: ', toolResult);
 
-          const toolResultText = toolResult?.main?.temp.toString() || 'Unknown'; // Extract temperature from toolResult
+          // Extract temperature from toolResult
+          const toolResultText = toolResult?.main?.temp.toString() || 'Unknown';
 
-          console.log('Tool Result: ' + toolResultText);
-
-          // Use the resolved toolResult directly
           const result = await client.beta.tools.messages.create({
             model: 'claude-3-opus-20240229',
             max_tokens: 1024,
